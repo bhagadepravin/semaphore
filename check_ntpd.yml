@@ -1,0 +1,22 @@
+---
+- name: Check NTPD Configuration
+  hosts: all
+  tasks:
+    - name: Check if NTPD is installed
+      command: "which ntpd"
+      register: ntpd_path
+      ignore_errors: true
+
+    - name: Display NTPD status if installed
+      debug:
+        msg: "NTPD is installed at {{ ntpd_path.stdout }}."
+      when: ntpd_path.rc == 0
+
+    - name: Check NTPD service status
+      service_facts:
+      delegate_to: localhost
+
+    - name: Display NTPD service status
+      debug:
+        msg: "NTPD service status is {{ ansible_facts.services['ntpd'].state }}"
+      when: "'ntpd' in ansible_facts.services"
